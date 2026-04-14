@@ -466,6 +466,19 @@
         "build": {
           "buildTransitive/net8.0/_._": {}
         }
+      },
+      "YamlDotNet/17.0.1": {
+        "type": "package",
+        "compile": {
+          "lib/net10.0/YamlDotNet.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net10.0/YamlDotNet.dll": {
+            "related": ".xml"
+          }
+        }
       }
     }
   },
@@ -1352,6 +1365,29 @@
         "system.security.cryptography.protecteddata.nuspec",
         "useSharedDesignerContext.txt"
       ]
+    },
+    "YamlDotNet/17.0.1": {
+      "sha512": "qVir5fehR/W5nTJyoJUibypETXaW4iRAF9cQa0FQIC9TJ3VC0qDOwm4o/RxANewj8KzPF8WMF2abBfUgi6LC4w==",
+      "type": "package",
+      "path": "yamldotnet/17.0.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "images/yamldotnet.png",
+        "lib/net10.0/YamlDotNet.dll",
+        "lib/net10.0/YamlDotNet.xml",
+        "lib/net47/YamlDotNet.dll",
+        "lib/net47/YamlDotNet.xml",
+        "lib/net8.0/YamlDotNet.dll",
+        "lib/net8.0/YamlDotNet.xml",
+        "lib/netstandard2.0/YamlDotNet.dll",
+        "lib/netstandard2.0/YamlDotNet.xml",
+        "lib/netstandard2.1/YamlDotNet.dll",
+        "lib/netstandard2.1/YamlDotNet.xml",
+        "yamldotnet.17.0.1.nupkg.sha512",
+        "yamldotnet.nuspec"
+      ]
     }
   },
   "projectFileDependencyGroups": {
@@ -1361,7 +1397,8 @@
       "MiniExcel >= 1.43.0",
       "MySqlConnector >= 2.5.0",
       "Npgsql >= 10.0.2",
-      "Swashbuckle.AspNetCore >= 10.1.7"
+      "Swashbuckle.AspNetCore >= 10.1.7",
+      "YamlDotNet >= 17.0.1"
     ]
   },
   "packageFolders": {
@@ -1437,6 +1474,10 @@
           "Swashbuckle.AspNetCore": {
             "target": "Package",
             "version": "[10.1.7, )"
+          },
+          "YamlDotNet": {
+            "target": "Package",
+            "version": "[17.0.1, )"
           }
         },
         "imports": [

@@ -10,6 +10,9 @@ builder.Services.AddScoped<IJsonToClassService, JsonToClassService>();
 builder.Services.AddScoped<IExcelCsvService, ExcelCsvService>();
 builder.Services.AddScoped<IMysqlService, MysqlService>();
 builder.Services.AddScoped<IDatabaseService, DatabaseService>();
+builder.Services.AddScoped<IDatabaseToSqlService, DatabaseToSqlService>();
+builder.Services.AddScoped<IDatabaseToJsonService, DatabaseToJsonService>();
+builder.Services.AddScoped<IDataFormatService, DataFormatService>();
 builder.Services.AddScoped<IDataGeneratorService, DataGeneratorService>();
 builder.Services.AddScoped<IJsonToSqlService, JsonToSqlService>();
 

@@ -194,3 +194,76 @@ public class JsonToSqlResult
     public List<string> DataSqlList { get; set; } = [];
     public List<ColumnMapping> AppliedMappings { get; set; } = [];
 }
+
+// 数据库相关模型
+public class DatabaseToSqlRequest : MysqlConnectionRequest
+{
+    public string TableName { get; set; } = "";
+    public bool IncludeIndexes { get; set; } = true;
+    public bool IncludeForeignKeys { get; set; } = true;
+}
+
+public class DatabaseToSqlResult
+{
+    public string CreateTableSql { get; set; } = "";
+    public List<string> IndexSqlList { get; set; } = [];
+    public List<string> ForeignKeySqlList { get; set; } = [];
+}
+
+public class DatabaseToJsonRequest : MysqlConnectionRequest
+{
+    public string Query { get; set; } = "";
+    public bool FormatOutput { get; set; } = true;
+}
+
+public class DatabaseToJsonResult
+{
+    public string Json { get; set; } = "";
+    public int TotalRows { get; set; }
+}
+
+// 数据格式相关模型
+public class XmlConvertRequest
+{
+    public string Content { get; set; } = "";
+    public string FileName { get; set; } = "export";
+}
+
+public class YamlConvertRequest
+{
+    public string Content { get; set; } = "";
+    public string FileName { get; set; } = "export";
+}
+
+public class MarkdownConvertRequest
+{
+    public string Content { get; set; } = "";
+    public string FileName { get; set; } = "export";
+    public bool HasHeader { get; set; } = true;
+}
+
+public class DataCleanRequest
+{
+    public List<Dictionary<string, string>> Rows { get; set; } = [];
+    public bool RemoveDuplicates { get; set; } = true;
+    public bool TrimWhitespace { get; set; } = true;
+    public bool RemoveEmptyRows { get; set; } = true;
+}
+
+// 数据库连接管理模型
+public class ConnectionConfig
+{
+    public string Name { get; set; } = "";
+    public DatabaseType DatabaseType { get; set; } = DatabaseType.MySql;
+    public string Host { get; set; } = "localhost";
+    public int Port { get; set; } = 3306;
+    public string Database { get; set; } = "";
+    public string Username { get; set; } = "";
+    public string Password { get; set; } = "";
+}
+
+public class ConnectionConfigRequest
+{
+    public List<ConnectionConfig> Configs { get; set; } = [];
+}
+

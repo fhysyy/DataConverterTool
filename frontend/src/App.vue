@@ -47,6 +47,15 @@
           <el-icon><Coin /></el-icon>
           <span>数据库 → Excel</span>
         </el-menu-item>
+        <el-menu-item index="/database-to-sql">
+          <el-icon><Document /></el-icon>
+          <span>数据库 → SQL</span>
+        </el-menu-item>
+        <div class="menu-group-title">数据格式</div>
+        <el-menu-item index="/data-format">
+          <el-icon><Grid /></el-icon>
+          <span>格式转换</span>
+        </el-menu-item>
         <div class="menu-group-title">工具</div>
         <el-menu-item index="/data-generator">
           <el-icon><MagicStick /></el-icon>

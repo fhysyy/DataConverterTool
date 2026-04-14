@@ -15,6 +15,9 @@ public class ConvertController : ControllerBase
     private readonly IDataGeneratorService _dataGeneratorService;
     private readonly IJsonToSqlService _jsonToSqlService;
     private readonly IDatabaseService _databaseService;
+    private readonly IDatabaseToSqlService _databaseToSqlService;
+    private readonly IDatabaseToJsonService _databaseToJsonService;
+    private readonly IDataFormatService _dataFormatService;
 
     public ConvertController(
         IExcelService excelService,
@@ -23,7 +26,10 @@ public class ConvertController : ControllerBase
         IMysqlService mysqlService,
         IDataGeneratorService dataGeneratorService,
         IJsonToSqlService jsonToSqlService,
-        IDatabaseService databaseService)
+        IDatabaseService databaseService,
+        IDatabaseToSqlService databaseToSqlService,
+        IDatabaseToJsonService databaseToJsonService,
+        IDataFormatService dataFormatService)
     {
         _excelService = excelService;
         _jsonToClassService = jsonToClassService;
@@ -32,6 +38,9 @@ public class ConvertController : ControllerBase
         _dataGeneratorService = dataGeneratorService;
         _jsonToSqlService = jsonToSqlService;
         _databaseService = databaseService;
+        _databaseToSqlService = databaseToSqlService;
+        _databaseToJsonService = databaseToJsonService;
+        _dataFormatService = dataFormatService;
     }
 
     [HttpPost("excel-to-sql")]
@@ -281,6 +290,128 @@ public class ConvertController : ControllerBase
     public async Task<ActionResult<ConvertResponse<MysqlQueryResult>>> PasteDataPreview([FromBody] PasteDataRequest request)
     {
         var result = await _databaseService.PasteDataToPreviewAsync(request);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    // 数据库转 SQL 相关端点
+    [HttpPost("database-to-sql")]
+    public async Task<ActionResult<ConvertResponse<DatabaseToSqlResult>>> DatabaseToSql([FromBody] DatabaseToSqlRequest request)
+    {
+        var result = await _databaseToSqlService.DatabaseToSqlAsync(request);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpPost("database-tables")]
+    public async Task<ActionResult<ConvertResponse<List<string>>>> GetDatabaseTables([FromBody] DatabaseToSqlRequest request)
+    {
+        var result = await _databaseToSqlService.GetTableListAsync(request);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    // 数据库转 JSON 相关端点
+    [HttpPost("database-to-json")]
+    public async Task<ActionResult<ConvertResponse<DatabaseToJsonResult>>> DatabaseToJson([FromBody] DatabaseToJsonRequest request)
+    {
+        var result = await _databaseToJsonService.DatabaseToJsonAsync(request);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    // XML 相关端点
+    [HttpPost("xml-to-excel")]
+    public async Task<ActionResult> XmlToExcel([FromBody] XmlConvertRequest request)
+    {
+        var result = await _dataFormatService.XmlToExcelAsync(request);
+        if (!result.Success || result.Data == null)
+            return BadRequest(result.Message);
+
+        return File(result.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{request.FileName}.xlsx");
+    }
+
+    [HttpPost("excel-to-xml")]
+    public async Task<ActionResult<ConvertResponse<string>>> ExcelToXml(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest(new ConvertResponse<string> { Success = false, Message = "请上传Excel文件" });
+
+        var result = await _dataFormatService.ExcelToXmlAsync(file);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpPost("xml-to-json")]
+    public async Task<ActionResult<ConvertResponse<string>>> XmlToJson([FromBody] XmlConvertRequest request)
+    {
+        var result = await _dataFormatService.XmlToJsonAsync(request);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpPost("json-to-xml")]
+    public async Task<ActionResult<ConvertResponse<string>>> JsonToXml([FromBody] XmlConvertRequest request)
+    {
+        var result = await _dataFormatService.JsonToXmlAsync(request);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    // YAML 相关端点
+    [HttpPost("yaml-to-excel")]
+    public async Task<ActionResult> YamlToExcel([FromBody] YamlConvertRequest request)
+    {
+        var result = await _dataFormatService.YamlToExcelAsync(request);
+        if (!result.Success || result.Data == null)
+            return BadRequest(result.Message);
+
+        return File(result.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{request.FileName}.xlsx");
+    }
+
+    [HttpPost("excel-to-yaml")]
+    public async Task<ActionResult<ConvertResponse<string>>> ExcelToYaml(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest(new ConvertResponse<string> { Success = false, Message = "请上传Excel文件" });
+
+        var result = await _dataFormatService.ExcelToYamlAsync(file);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpPost("yaml-to-json")]
+    public async Task<ActionResult<ConvertResponse<string>>> YamlToJson([FromBody] YamlConvertRequest request)
+    {
+        var result = await _dataFormatService.YamlToJsonAsync(request);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpPost("json-to-yaml")]
+    public async Task<ActionResult<ConvertResponse<string>>> JsonToYaml([FromBody] YamlConvertRequest request)
+    {
+        var result = await _dataFormatService.JsonToYamlAsync(request);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    // Markdown 相关端点
+    [HttpPost("markdown-to-excel")]
+    public async Task<ActionResult> MarkdownToExcel([FromBody] MarkdownConvertRequest request)
+    {
+        var result = await _dataFormatService.MarkdownToExcelAsync(request);
+        if (!result.Success || result.Data == null)
+            return BadRequest(result.Message);
+
+        return File(result.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{request.FileName}.xlsx");
+    }
+
+    [HttpPost("excel-to-markdown")]
+    public async Task<ActionResult<ConvertResponse<string>>> ExcelToMarkdown(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest(new ConvertResponse<string> { Success = false, Message = "请上传Excel文件" });
+
+        var result = await _dataFormatService.ExcelToMarkdownAsync(file);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    // 数据清洗端点
+    [HttpPost("clean-data")]
+    public async Task<ActionResult<ConvertResponse<List<Dictionary<string, string>> >>> CleanData([FromBody] DataCleanRequest request)
+    {
+        var result = await _dataFormatService.CleanDataAsync(request);
         return result.Success ? Ok(result) : BadRequest(result);
     }
 }

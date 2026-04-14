@@ -13,7 +13,8 @@
           "MiniExcel": "1.43.0",
           "MySqlConnector": "2.5.0",
           "Npgsql": "10.0.2",
-          "Swashbuckle.AspNetCore": "10.1.7"
+          "Swashbuckle.AspNetCore": "10.1.7",
+          "YamlDotNet": "17.0.1"
         },
         "runtime": {
           "DataConverter.API.dll": {}
@@ -320,6 +321,14 @@
             "fileVersion": "9.0.1326.6317"
           }
         }
+      },
+      "YamlDotNet/17.0.1": {
+        "runtime": {
+          "lib/net10.0/YamlDotNet.dll": {
+            "assemblyVersion": "17.0.0.0",
+            "fileVersion": "17.0.1.0"
+          }
+        }
       }
     }
   },
@@ -496,6 +505,13 @@
       "sha512": "sha512-t8S9IDpjJKsLpLkeBdW8cWtcPyYqrGu93Dej1RO6WwuL/lkFSqWlan3rMJfortqz1mRIh+sys2AFsSA6jWJ3Jg==",
       "path": "system.security.cryptography.protecteddata/9.0.13",
       "hashPath": "system.security.cryptography.protecteddata.9.0.13.nupkg.sha512"
+    },
+    "YamlDotNet/17.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-qVir5fehR/W5nTJyoJUibypETXaW4iRAF9cQa0FQIC9TJ3VC0qDOwm4o/RxANewj8KzPF8WMF2abBfUgi6LC4w==",
+      "path": "yamldotnet/17.0.1",
+      "hashPath": "yamldotnet.17.0.1.nupkg.sha512"
     }
   }
 }
