@@ -15,6 +15,7 @@ const router = createRouter({
     { path: '/database-to-sql', name: 'DatabaseToSql', component: () => import('../views/DatabaseToSql.vue') },
     { path: '/data-format', name: 'DataFormat', component: () => import('../views/DataFormat.vue') },
     { path: '/data-generator', name: 'DataGenerator', component: () => import('../views/DataGenerator.vue') },
+    { path: '/encryption', name: 'Encryption', component: () => import('../views/Encryption.vue') },
   ]
 })
 

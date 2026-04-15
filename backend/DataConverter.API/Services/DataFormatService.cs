@@ -31,6 +31,10 @@ public interface IDataFormatService
     
     // 数据清洗
     Task<ConvertResponse<List<Dictionary<string, string>>>> CleanDataAsync(DataCleanRequest request);
+    
+    // 加解密相关
+    Task<ConvertResponse<string>> EncryptAsync(EncryptRequest request);
+    Task<ConvertResponse<string>> DecryptAsync(DecryptRequest request);
 }
 
 public class DataFormatService : IDataFormatService
@@ -359,6 +363,132 @@ public class DataFormatService : IDataFormatService
             sb.Append('|').Append(string.Join("|", headers.Select(h => row.TryGetValue(h, out var v) ? v?.ToString() ?? "" : ""))).Append("|\n");
         }
 
+        return sb.ToString();
+    }
+
+    // 加解密相关方法
+    public Task<ConvertResponse<string>> EncryptAsync(EncryptRequest request)
+    {
+        try
+        {
+            string result;
+            switch (request.EncryptionType)
+            {
+                case EncryptionType.Base64:
+                    result = Base64Encrypt(request.Content);
+                    break;
+                case EncryptionType.MD5:
+                    result = MD5Encrypt(request.Content);
+                    break;
+                case EncryptionType.SHA1:
+                    result = SHA1Encrypt(request.Content);
+                    break;
+                case EncryptionType.SHA256:
+                    result = SHA256Encrypt(request.Content);
+                    break;
+                case EncryptionType.SHA512:
+                    result = SHA512Encrypt(request.Content);
+                    break;
+                default:
+                    throw new ArgumentException("不支持的加密类型");
+            }
+            return Task.FromResult(new ConvertResponse<string> { Success = true, Data = result });
+        }
+        catch (Exception ex)
+        {
+            return Task.FromResult(new ConvertResponse<string> { Success = false, Message = $"加密失败: {ex.Message}" });
+        }
+    }
+
+    public Task<ConvertResponse<string>> DecryptAsync(DecryptRequest request)
+    {
+        try
+        {
+            string result;
+            switch (request.EncryptionType)
+            {
+                case EncryptionType.Base64:
+                    result = Base64Decrypt(request.Content);
+                    break;
+                case EncryptionType.MD5:
+                case EncryptionType.SHA1:
+                case EncryptionType.SHA256:
+                case EncryptionType.SHA512:
+                    return Task.FromResult(new ConvertResponse<string> { Success = false, Message = "哈希算法不可逆，无法解密" });
+                default:
+                    throw new ArgumentException("不支持的解密类型");
+            }
+            return Task.FromResult(new ConvertResponse<string> { Success = true, Data = result });
+        }
+        catch (Exception ex)
+        {
+            return Task.FromResult(new ConvertResponse<string> { Success = false, Message = $"解密失败: {ex.Message}" });
+        }
+    }
+
+    // 辅助方法：Base64加密
+    private static string Base64Encrypt(string content)
+    {
+        var bytes = Encoding.UTF8.GetBytes(content);
+        return Convert.ToBase64String(bytes);
+    }
+
+    // 辅助方法：Base64解密
+    private static string Base64Decrypt(string content)
+    {
+        var bytes = Convert.FromBase64String(content);
+        return Encoding.UTF8.GetString(bytes);
+    }
+
+    // 辅助方法：MD5加密
+    private static string MD5Encrypt(string content)
+    {
+        using var md5 = System.Security.Cryptography.MD5.Create();
+        var bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(content));
+        var sb = new StringBuilder();
+        foreach (var b in bytes)
+        {
+            sb.Append(b.ToString("x2"));
+        }
+        return sb.ToString();
+    }
+
+    // 辅助方法：SHA1加密
+    private static string SHA1Encrypt(string content)
+    {
+        using var sha1 = System.Security.Cryptography.SHA1.Create();
+        var bytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(content));
+        var sb = new StringBuilder();
+        foreach (var b in bytes)
+        {
+            sb.Append(b.ToString("x2"));
+        }
+        return sb.ToString();
+    }
+
+    // 辅助方法：SHA256加密
+    private static string SHA256Encrypt(string content)
+    {
+        using var sha256 = System.Security.Cryptography.SHA256.Create();
+        var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(content));
+        var sb = new StringBuilder();
+        foreach (var b in bytes)
+        {
+            sb.Append(b.ToString("x2"));
+        }
+        return sb.ToString();
+    }
+
+    // 辅助方法：SHA512加密
+    private static string SHA512Encrypt(string content)
+    {
+        using var sha512 = System.Security.Cryptography.SHA512.Create();
+        var bytes = sha512.ComputeHash(Encoding.UTF8.GetBytes(content));
+        var sb = new StringBuilder();
+        foreach (var b in bytes)
+        {
+            sb.Append(b.ToString("x2"));
+        }
         return sb.ToString();
     }
 }

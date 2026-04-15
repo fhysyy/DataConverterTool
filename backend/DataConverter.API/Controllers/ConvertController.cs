@@ -414,4 +414,19 @@ public class ConvertController : ControllerBase
         var result = await _dataFormatService.CleanDataAsync(request);
         return result.Success ? Ok(result) : BadRequest(result);
     }
+
+    // 加解密端点
+    [HttpPost("encrypt")]
+    public async Task<ActionResult<ConvertResponse<string>>> Encrypt([FromBody] EncryptRequest request)
+    {
+        var result = await _dataFormatService.EncryptAsync(request);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpPost("decrypt")]
+    public async Task<ActionResult<ConvertResponse<string>>> Decrypt([FromBody] DecryptRequest request)
+    {
+        var result = await _dataFormatService.DecryptAsync(request);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
 }

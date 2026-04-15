@@ -268,3 +268,27 @@ public class ConnectionConfigRequest
     public List<ConnectionConfig> Configs { get; set; } = [];
 }
 
+// 加解密相关模型
+public class EncryptRequest
+{
+    public string Content { get; set; } = "";
+    public EncryptionType EncryptionType { get; set; } = EncryptionType.Base64;
+    public string Key { get; set; } = "";
+}
+
+public class DecryptRequest
+{
+    public string Content { get; set; } = "";
+    public EncryptionType EncryptionType { get; set; } = EncryptionType.Base64;
+    public string Key { get; set; } = "";
+}
+
+public enum EncryptionType
+{
+    Base64,
+    MD5,
+    SHA1,
+    SHA256,
+    SHA512
+}
+

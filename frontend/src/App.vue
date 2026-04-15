@@ -61,6 +61,10 @@
           <el-icon><MagicStick /></el-icon>
           <span>数据生成器</span>
         </el-menu-item>
+        <el-menu-item index="/encryption">
+          <el-icon><Lock /></el-icon>
+          <span>加解密工具</span>
+        </el-menu-item>
       </el-menu>
     </el-aside>
     <el-main class="app-main">
