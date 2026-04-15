@@ -23,6 +23,9 @@
         <el-form-item label="数据库">
           <el-input v-model="form.database" placeholder="数据库名" style="width: 180px" />
         </el-form-item>
+        <el-form-item label="Schema">
+          <el-input v-model="form.schema" placeholder="默认或指定" style="width: 150px" />
+        </el-form-item>
         <el-form-item label="用户名">
           <el-input v-model="form.username" placeholder="root" style="width: 150px" />
         </el-form-item>
@@ -103,6 +106,7 @@ const form = reactive({
   host: 'localhost',
   port: 3306,
   database: '',
+  schema: '',
   username: 'root',
   password: '',
   tableName: '',
@@ -114,19 +118,22 @@ const handleDbTypeChange = () => {
   if (form.databaseType === 1) {
     form.port = 3306
     form.username = 'root'
+    form.schema = ''
   } else if (form.databaseType === 0) {
     form.port = 1433
     form.username = 'sa'
+    form.schema = 'dbo'
   } else if (form.databaseType === 2) {
     form.port = 5432
     form.username = 'postgres'
+    form.schema = 'public'
   }
 }
 
 const loadTables = async () => {
   loading.value = true
   try {
-    const { data } = await axios.post('http://localhost:5077/api/convert/database-tables', form)
+    const { data } = await axios.post('http://localhost:5077/api/convert/database-sql-tables', form)
     if (data.success) {
       tables.value = data.data
       ElMessage.success(`加载了 ${tables.value.length} 个表`)

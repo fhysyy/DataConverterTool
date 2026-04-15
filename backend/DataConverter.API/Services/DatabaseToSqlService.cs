@@ -48,8 +48,12 @@ public class DatabaseToSqlService : IDatabaseToSqlService
         {
             var query = request.DatabaseType switch
             {
-                DatabaseType.SqlServer => "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' ORDER BY TABLE_NAME",
-                DatabaseType.PostgreSql => "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name",
+                DatabaseType.SqlServer => string.IsNullOrEmpty(request.Schema) 
+                    ? "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' ORDER BY TABLE_NAME"
+                    : $"SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA = '{request.Schema}' ORDER BY TABLE_NAME",
+                DatabaseType.PostgreSql => string.IsNullOrEmpty(request.Schema) 
+                    ? "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name"
+                    : $"SELECT table_name FROM information_schema.tables WHERE table_schema = '{request.Schema}' ORDER BY table_name",
                 _ => "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() ORDER BY TABLE_NAME"
             };
 
@@ -68,8 +72,9 @@ public class DatabaseToSqlService : IDatabaseToSqlService
 
     private static async Task<DatabaseToSqlResult> GenerateMySqlSchemaAsync(DatabaseToSqlRequest request)
     {
+        var databaseName = string.IsNullOrEmpty(request.Schema) ? request.Database : request.Schema;
         await using var connection = new MySqlConnection(
-            $"Server={request.Host};Port={request.Port};Database={request.Database};User Id={request.Username};Password={request.Password};");
+            $"Server={request.Host};Port={request.Port};Database={databaseName};User Id={request.Username};Password={request.Password};");
         await connection.OpenAsync();
 
         var result = new DatabaseToSqlResult();
@@ -120,6 +125,7 @@ public class DatabaseToSqlService : IDatabaseToSqlService
         var result = new DatabaseToSqlResult();
 
         // 获取表结构
+        var tableSchemaCondition = string.IsNullOrEmpty(request.Schema) ? "" : $"AND t.TABLE_SCHEMA = '{request.Schema}' AND c.TABLE_SCHEMA = '{request.Schema}'";
         var tableSql = $@"
             SELECT 
                 t.TABLE_NAME, 
@@ -131,9 +137,10 @@ public class DatabaseToSqlService : IDatabaseToSqlService
             FROM 
                 INFORMATION_SCHEMA.TABLES t
             JOIN 
-                INFORMATION_SCHEMA.COLUMNS c ON t.TABLE_NAME = c.TABLE_NAME
+                INFORMATION_SCHEMA.COLUMNS c ON t.TABLE_NAME = c.TABLE_NAME AND t.TABLE_SCHEMA = c.TABLE_SCHEMA
             WHERE 
                 t.TABLE_NAME = '{request.TableName}'
+                {tableSchemaCondition}
             ORDER BY 
                 c.ORDINAL_POSITION
         ";
@@ -154,7 +161,10 @@ public class DatabaseToSqlService : IDatabaseToSqlService
         await reader.CloseAsync();
 
         // 构建 CREATE TABLE 语句
-        var createTableSql = $"CREATE TABLE [{request.TableName}] (\n";
+        var tableNameWithSchema = string.IsNullOrEmpty(request.Schema) 
+            ? $"[{request.TableName}]" 
+            : $"[{request.Schema}].[{request.TableName}]";
+        var createTableSql = $"CREATE TABLE {tableNameWithSchema} (\n";
         createTableSql += string.Join(",\n", columns);
         createTableSql += "\n);";
         result.CreateTableSql = createTableSql;
@@ -162,6 +172,7 @@ public class DatabaseToSqlService : IDatabaseToSqlService
         // 获取索引
         if (request.IncludeIndexes)
         {
+            var indexSchemaCondition = string.IsNullOrEmpty(request.Schema) ? "" : $"AND s.name = '{request.Schema}'";
             var indexSql = $@"
                 SELECT 
                     i.name, 
@@ -174,8 +185,11 @@ public class DatabaseToSqlService : IDatabaseToSqlService
                     sys.columns c ON ic.object_id = c.object_id AND ic.column_id = c.column_id
                 JOIN 
                     sys.tables t ON i.object_id = t.object_id
+                JOIN
+                    sys.schemas s ON t.schema_id = s.schema_id
                 WHERE 
                     t.name = '{request.TableName}' AND i.type > 0
+                    {indexSchemaCondition}
                 ORDER BY 
                     i.name, ic.key_ordinal
             ";
@@ -195,7 +209,10 @@ public class DatabaseToSqlService : IDatabaseToSqlService
 
             foreach (var (indexName, indexColumns) in indexes)
             {
-                var indexCreateSql = $"CREATE INDEX [{indexName}] ON [{request.TableName}] ({string.Join(", ", indexColumns.Select(c => $"[{c}]".ToString()))});";
+                var indexTableNameWithSchema = string.IsNullOrEmpty(request.Schema) 
+                    ? $"[{request.TableName}]" 
+                    : $"[{request.Schema}].[{request.TableName}]";
+                var indexCreateSql = $"CREATE INDEX [{indexName}] ON {indexTableNameWithSchema} ({string.Join(", ", indexColumns.Select(c => $"[{c}]".ToString()))});";
                 result.IndexSqlList.Add(indexCreateSql);
             }
         }
@@ -212,6 +229,7 @@ public class DatabaseToSqlService : IDatabaseToSqlService
         var result = new DatabaseToSqlResult();
 
         // 获取表结构
+        var schema = string.IsNullOrEmpty(request.Schema) ? "public" : request.Schema;
         var tableSql = $@"
             SELECT 
                 column_name, 
@@ -223,7 +241,7 @@ public class DatabaseToSqlService : IDatabaseToSqlService
                 information_schema.columns
             WHERE 
                 table_name = '{request.TableName}'
-                AND table_schema = 'public'
+                AND table_schema = '{schema}'
             ORDER BY 
                 ordinal_position
         ";
@@ -244,7 +262,10 @@ public class DatabaseToSqlService : IDatabaseToSqlService
         await reader.CloseAsync();
 
         // 构建 CREATE TABLE 语句
-        var createTableSql = $"CREATE TABLE \"{request.TableName}\" (\n";
+        var tableNameWithSchema = string.IsNullOrEmpty(request.Schema) 
+            ? $"\"{request.TableName}\"" 
+            : $"\"{schema}\".\"{request.TableName}\"";
+        var createTableSql = $"CREATE TABLE {tableNameWithSchema} (\n";
         createTableSql += string.Join(",\n", columns);
         createTableSql += "\n);";
         result.CreateTableSql = createTableSql;
@@ -264,8 +285,11 @@ public class DatabaseToSqlService : IDatabaseToSqlService
                     pg_class t ON t.oid = ix.indrelid
                 JOIN 
                     pg_attribute a ON a.attrelid = t.oid AND a.attnum = ANY(ix.indkey)
+                JOIN
+                    pg_namespace n ON t.relnamespace = n.oid
                 WHERE 
                     t.relname = '{request.TableName}'
+                    AND n.nspname = '{schema}'
                 ORDER BY 
                     i.relname, ix.indkey
             ";
@@ -286,7 +310,10 @@ public class DatabaseToSqlService : IDatabaseToSqlService
             foreach (var (indexName, indexColumns) in indexes)
             {
                 var columnsStr = string.Join(", ", indexColumns.Select(c => $"\"{c}\""));
-                var indexCreateSql = $"CREATE INDEX \"{indexName}\" ON \"{request.TableName}\" ({columnsStr});";
+                var indexTableNameWithSchema = string.IsNullOrEmpty(request.Schema) 
+                    ? $"\"{request.TableName}\"" 
+                    : $"\"{schema}\".\"{request.TableName}\"";
+                var indexCreateSql = $"CREATE INDEX \"{indexName}\" ON {indexTableNameWithSchema} ({columnsStr});";
                 result.IndexSqlList.Add(indexCreateSql);
             }
         }

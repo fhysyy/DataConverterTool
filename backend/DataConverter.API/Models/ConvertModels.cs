@@ -199,6 +199,7 @@ public class JsonToSqlResult
 public class DatabaseToSqlRequest : MysqlConnectionRequest
 {
     public string TableName { get; set; } = "";
+    public string Schema { get; set; } = "";
     public bool IncludeIndexes { get; set; } = true;
     public bool IncludeForeignKeys { get; set; } = true;
 }

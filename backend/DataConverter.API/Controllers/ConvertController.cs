@@ -301,7 +301,7 @@ public class ConvertController : ControllerBase
         return result.Success ? Ok(result) : BadRequest(result);
     }
 
-    [HttpPost("database-tables")]
+    [HttpPost("database-sql-tables")]
     public async Task<ActionResult<ConvertResponse<List<string>>>> GetDatabaseTables([FromBody] DatabaseToSqlRequest request)
     {
         var result = await _databaseToSqlService.GetTableListAsync(request);
