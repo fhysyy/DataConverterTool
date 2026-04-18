@@ -34,6 +34,10 @@
           <el-icon><Coin /></el-icon>
           <span>JSON → SQL</span>
         </el-menu-item>
+        <el-menu-item index="/json-validate">
+          <el-icon><Check /></el-icon>
+          <span>JSON 校验</span>
+        </el-menu-item>
         <div class="menu-group-title">格式互转</div>
         <el-menu-item index="/excel-csv">
           <el-icon><DocumentCopy /></el-icon>

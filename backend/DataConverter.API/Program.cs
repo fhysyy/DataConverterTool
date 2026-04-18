@@ -1,33 +1,28 @@
-using DataConverter.API.Services;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IExcelService, ExcelService>();
-builder.Services.AddScoped<IJsonToClassService, JsonToClassService>();
-builder.Services.AddScoped<IExcelCsvService, ExcelCsvService>();
-builder.Services.AddScoped<IMysqlService, MysqlService>();
-builder.Services.AddScoped<IDatabaseService, DatabaseService>();
-builder.Services.AddScoped<IDatabaseToSqlService, DatabaseToSqlService>();
-builder.Services.AddScoped<IDatabaseToJsonService, DatabaseToJsonService>();
-builder.Services.AddScoped<IDataFormatService, DataFormatService>();
-builder.Services.AddScoped<IDataGeneratorService, DataGeneratorService>();
-builder.Services.AddScoped<IJsonToSqlService, JsonToSqlService>();
 
+// Configure CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowAll", builder =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
     });
 });
 
 var app = builder.Build();
 
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -35,5 +30,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowAll");
+app.UseAuthorization();
 app.MapControllers();
+
 app.Run();
