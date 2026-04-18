@@ -79,7 +79,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import { api } from '@/api'
 
 const jsonInput = ref(`{
   "name": "张三",
@@ -110,15 +110,15 @@ const validateJson = async () => {
   validationResult.value = null
 
   try {
-    const res = await axios.post('/api/validate/json', {
+    const res = await api.validate.json({
       json: jsonInput.value
     })
 
-    if (res.data.success) {
-      validationResult.value = res.data.data
+    if (res.success) {
+      validationResult.value = res.data
       ElMessage.success('校验完成')
     } else {
-      ElMessage.error(res.data.message || '校验失败')
+      ElMessage.error(res.message || '校验失败')
     }
   } catch (err: any) {
     ElMessage.error(err.response?.data?.message || '请求失败')

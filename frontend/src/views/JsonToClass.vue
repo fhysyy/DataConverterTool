@@ -62,7 +62,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import { api } from '@/api'
 
 const jsonInput = ref(`{
   "name": "张三",
@@ -99,17 +99,17 @@ const convert = async () => {
   codeResult.value = ''
 
   try {
-    const res = await axios.post('/api/convert/json-to-class', {
+    const res = await api.convert.jsonToClass({
       json: jsonInput.value,
       className: form.className,
       language: form.language,
     })
 
-    if (res.data.success) {
-      codeResult.value = res.data.data.code
+    if (res.success) {
+      codeResult.value = res.data.code
       ElMessage.success('生成成功')
     } else {
-      ElMessage.error(res.data.message || '生成失败')
+      ElMessage.error(res.message || '生成失败')
     }
   } catch (err: any) {
     ElMessage.error(err.response?.data?.message || '请求失败')

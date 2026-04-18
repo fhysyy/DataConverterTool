@@ -133,7 +133,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import { api } from '@/api'
 
 const activeTab = ref('database')
 const loading = ref(false)
@@ -179,10 +179,11 @@ const handleDbTypeChange = () => {
 const loadTables = async () => {
   loading.value = true
   try {
-    const { data } = await axios.post('http://tool.kenjtyang.site/data_api/api/convert/database-tables', dbForm)
+    const data = await api.convert.databaseTables(dbForm)
     if (data.success) {
       tables.value = data.data
       ElMessage.success(`加载了 ${tables.value.length} 个表`)
+    } else {
       ElMessage.error(data.message || '加载表列表失败')
     }
   } catch (error: any) {
@@ -203,7 +204,7 @@ const previewData = async () => {
   }
   loading.value = true
   try {
-    const { data } = await axios.post('http://tool.kenjtyang.site/data_api/api/convert/database-preview', dbForm)
+    const data = await api.convert.databasePreview(dbForm)
     if (data.success) {
       previewDataResult.value = data.data
       ElMessage.success(`查询成功，共 ${data.data.totalRows} 行`)
@@ -224,9 +225,7 @@ const downloadExcel = async () => {
   }
   downloading.value = true
   try {
-    const { data } = await axios.post('http://tool.kenjtyang.site/data_api/api/convert/database-to-excel', dbForm, {
-      responseType: 'blob'
-    })
+    const data = await api.convert.databaseToExcel(dbForm)
     const url = window.URL.createObjectURL(new Blob([data]))
     const link = document.createElement('a')
     link.href = url
@@ -250,7 +249,7 @@ const previewPasteData = async () => {
   }
   loading.value = true
   try {
-    const { data } = await axios.post('http://tool.kenjtyang.site/data_api/api/convert/paste-data-preview', pasteForm)
+    const data = await api.convert.pasteDataPreview(pasteForm)
     if (data.success) {
       previewDataResult.value = data.data
       ElMessage.success(`解析成功，共 ${data.data.totalRows} 行`)
@@ -271,9 +270,7 @@ const downloadPasteExcel = async () => {
   }
   downloading.value = true
   try {
-    const { data } = await axios.post('http://tool.kenjtyang.site/data_api/api/convert/paste-data-to-excel', pasteForm, {
-      responseType: 'blob'
-    })
+    const data = await api.convert.pasteDataToExcel(pasteForm)
     const url = window.URL.createObjectURL(new Blob([data]))
     const link = document.createElement('a')
     link.href = url

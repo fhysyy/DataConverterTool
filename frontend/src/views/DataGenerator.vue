@@ -134,7 +134,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import { api } from '@/api'
 
 const loading = ref(false)
 const result = ref('')
@@ -203,13 +203,17 @@ const generate = async () => {
   if (form.columns.length === 0) { ElMessage.warning('请至少定义一列'); return }
   loading.value = true; result.value = ''
   try {
-    const res = await axios.post('/api/convert/data-generator', form)
-    if (res.data.success) {
-      result.value = res.data.data.content
-      resultFileName.value = res.data.data.fileName
+    const res = await api.convert.dataGenerator(form)
+    if (res.success) {
+      result.value = res.data.content
+      resultFileName.value = res.data.fileName
       ElMessage.success('生成成功')
-    } else { ElMessage.error(res.data.message) }
-  } catch (err: any) { ElMessage.error(err.response?.data || '请求失败') }
+    } else {
+      ElMessage.error(res.message || '生成失败')
+    }
+  } catch (err: any) {
+    ElMessage.error(err.response?.data || '请求失败')
+  }
   finally { loading.value = false }
 }
 
@@ -217,11 +221,10 @@ const generateAndDownload = async () => {
   if (form.columns.length === 0) { ElMessage.warning('请至少定义一列'); return }
   loading.value = true
   try {
-    const res = await axios.post('/api/convert/data-generator-download', form, { responseType: 'blob' })
-    const contentType = res.headers['content-type'] || 'text/plain'
-    const blob = new Blob([res.data], { type: contentType })
+    const res = await api.convert.dataGeneratorDownload(form)
+    const blob = new Blob([res], { type: 'application/octet-stream' })
     const url = URL.createObjectURL(blob)
-    const contentDisposition = res.headers['content-disposition']
+    const contentDisposition = 'attachment; filename=data.csv'
     let filename = 'data.txt'
     if (contentDisposition) {
       const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)

@@ -74,7 +74,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import { api } from '@/api'
 
 const columns = ref<string[]>(['name', 'age', 'email'])
 const rows = ref<Record<string, string>[]>([
@@ -119,14 +119,14 @@ const convert = async () => {
   }
 
   try {
-    const res = await axios.post('/api/convert/table-to-json', {
+    const res = await api.convert.tableToJson({
       rows: rows.value
     })
-    if (res.data.success) {
-      jsonResult.value = res.data.data
+    if (res.success) {
+      jsonResult.value = res.data
       ElMessage.success('转换成功')
     } else {
-      ElMessage.error(res.data.message || '转换失败')
+      ElMessage.error(res.message || '转换失败')
     }
   } catch (err: any) {
     ElMessage.error(err.response?.data?.message || '请求失败')

@@ -194,7 +194,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import { api } from '@/api'
 
 const activeTab = ref('xml')
 const loading = ref(false)
@@ -241,9 +241,7 @@ const convertXml = async () => {
       }
       const formData = new FormData()
       formData.append('file', excelFile.value)
-      const { data } = await axios.post('http://tool.kenjtyang.site/data_api/api/convert/excel-to-xml', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
+      const data = await api.convert.excelToXml(formData)
       if (data.success) {
         result.value = data.data
         ElMessage.success('转换成功')
@@ -251,9 +249,7 @@ const convertXml = async () => {
         ElMessage.error(data.message || '转换失败')
       }
     } else if (xmlForm.operation === 'xml-to-excel') {
-      const { data } = await axios.post('http://tool.kenjtyang.site/data_api/api/convert/xml-to-excel', xmlForm, {
-        responseType: 'blob'
-      })
+      const data = await api.convert.xmlToExcel(xmlForm)
       const url = window.URL.createObjectURL(new Blob([data]))
       const link = document.createElement('a')
       link.href = url
@@ -264,13 +260,22 @@ const convertXml = async () => {
       window.URL.revokeObjectURL(url)
       ElMessage.success('导出成功')
     } else {
-      const endpoint = xmlForm.operation === 'xml-to-json' ? 'xml-to-json' : 'json-to-xml'
-      const { data } = await axios.post(`http://tool.kenjtyang.site/data_api/api/convert/${endpoint}`, xmlForm)
-      if (data.success) {
-        result.value = data.data
-        ElMessage.success('转换成功')
+      if (xmlForm.operation === 'xml-to-json') {
+        const data = await api.convert.xmlToJson(xmlForm)
+        if (data.success) {
+          result.value = data.data
+          ElMessage.success('转换成功')
+        } else {
+          ElMessage.error(data.message || '转换失败')
+        }
       } else {
-        ElMessage.error(data.message || '转换失败')
+        const data = await api.convert.jsonToXml(xmlForm)
+        if (data.success) {
+          result.value = data.data
+          ElMessage.success('转换成功')
+        } else {
+          ElMessage.error(data.message || '转换失败')
+        }
       }
     }
   } catch (error: any) {
@@ -290,9 +295,7 @@ const convertYaml = async () => {
       }
       const formData = new FormData()
       formData.append('file', excelFile.value)
-      const { data } = await axios.post('http://tool.kenjtyang.site/data_api/api/convert/excel-to-yaml', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
+      const data = await api.convert.excelToYaml(formData)
       if (data.success) {
         result.value = data.data
         ElMessage.success('转换成功')
@@ -300,9 +303,7 @@ const convertYaml = async () => {
         ElMessage.error(data.message || '转换失败')
       }
     } else if (yamlForm.operation === 'yaml-to-excel') {
-      const { data } = await axios.post('http://tool.kenjtyang.site/data_api/api/convert/yaml-to-excel', yamlForm, {
-        responseType: 'blob'
-      })
+      const data = await api.convert.yamlToExcel(yamlForm)
       const url = window.URL.createObjectURL(new Blob([data]))
       const link = document.createElement('a')
       link.href = url
@@ -313,13 +314,22 @@ const convertYaml = async () => {
       window.URL.revokeObjectURL(url)
       ElMessage.success('导出成功')
     } else {
-      const endpoint = yamlForm.operation === 'yaml-to-json' ? 'yaml-to-json' : 'json-to-yaml'
-      const { data } = await axios.post(`http://tool.kenjtyang.site/data_api/api/convert/${endpoint}`, yamlForm)
-      if (data.success) {
-        result.value = data.data
-        ElMessage.success('转换成功')
+      if (yamlForm.operation === 'yaml-to-json') {
+        const data = await api.convert.yamlToJson(yamlForm)
+        if (data.success) {
+          result.value = data.data
+          ElMessage.success('转换成功')
+        } else {
+          ElMessage.error(data.message || '转换失败')
+        }
       } else {
-        ElMessage.error(data.message || '转换失败')
+        const data = await api.convert.jsonToYaml(yamlForm)
+        if (data.success) {
+          result.value = data.data
+          ElMessage.success('转换成功')
+        } else {
+          ElMessage.error(data.message || '转换失败')
+        }
       }
     }
   } catch (error: any) {
@@ -339,9 +349,7 @@ const convertMarkdown = async () => {
       }
       const formData = new FormData()
       formData.append('file', excelFile.value)
-      const { data } = await axios.post('http://tool.kenjtyang.site/data_api/api/convert/excel-to-markdown', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
+      const data = await api.convert.excelToMarkdown(formData)
       if (data.success) {
         result.value = data.data
         ElMessage.success('转换成功')
@@ -349,9 +357,7 @@ const convertMarkdown = async () => {
         ElMessage.error(data.message || '转换失败')
       }
     } else {
-      const { data } = await axios.post('http://tool.kenjtyang.site/data_api/api/convert/markdown-to-excel', markdownForm, {
-        responseType: 'blob'
-      })
+      const data = await api.convert.markdownToExcel(markdownForm)
       const url = window.URL.createObjectURL(new Blob([data]))
       const link = document.createElement('a')
       link.href = url
@@ -379,7 +385,7 @@ const cleanData = async () => {
       trimWhitespace: cleanForm.trimWhitespace,
       removeEmptyRows: cleanForm.removeEmptyRows
     }
-    const { data: response } = await axios.post('http://tool.kenjtyang.site/data_api/api/convert/clean-data', request)
+    const response = await api.convert.cleanData(request)
     if (response.success) {
       result.value = JSON.stringify(response.data, null, 2)
       ElMessage.success('数据清洗成功')

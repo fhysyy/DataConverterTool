@@ -140,7 +140,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import { api } from '@/api'
 
 interface ColumnMapping {
   sourceName: string
@@ -182,9 +182,9 @@ const analyzeColumns = async () => {
 
   analyzing.value = true
   try {
-    const res = await axios.post('/api/convert/json-analyze-columns', { json: form.json })
-    if (res.data.success) {
-      columnMappings.value = res.data.data.map((m: any) => ({
+    const res = await api.convert.jsonAnalyzeColumns({ json: form.json })
+    if (res.success) {
+      columnMappings.value = res.data.map((m: any) => ({
         sourceName: m.sourceName,
         targetName: m.targetName || m.sourceName,
         sqlType: m.sqlType || '',
@@ -192,7 +192,7 @@ const analyzeColumns = async () => {
       }))
       ElMessage.success(`已解析 ${columnMappings.value.length} 个字段`)
     } else {
-      ElMessage.error(res.data.message || '解析失败')
+      ElMessage.error(res.message || '解析失败')
     }
   } catch (err: any) {
     ElMessage.error(err.response?.data?.message || '解析失败')
@@ -233,13 +233,13 @@ const convert = async () => {
       })),
     }
 
-    const res = await axios.post('/api/convert/json-to-sql', payload)
+    const res = await api.convert.jsonToSql(payload)
 
-    if (res.data.success) {
-      result.value = res.data
+    if (res.success) {
+      result.value = res
       ElMessage.success('转换成功')
     } else {
-      ElMessage.error(res.data.message || '转换失败')
+      ElMessage.error(res.message || '转换失败')
     }
   } catch (err: any) {
     ElMessage.error(err.response?.data?.message || '请求失败')

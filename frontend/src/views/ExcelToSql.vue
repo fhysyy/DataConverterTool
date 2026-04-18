@@ -76,7 +76,7 @@
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { UploadFile } from 'element-plus'
-import axios from 'axios'
+import { api } from '@/api'
 
 const loading = ref(false)
 const result = ref<any>(null)
@@ -110,15 +110,13 @@ const convert = async () => {
     formData.append('includeCreateTable', String(form.includeCreateTable))
     formData.append('databaseType', String(form.databaseType))
 
-    const res = await axios.post('/api/convert/excel-to-sql', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    })
+    const res = await api.convert.excelToSql(formData)
 
-    if (res.data.success) {
+    if (res.success) {
       result.value = res.data
       ElMessage.success('转换成功')
     } else {
-      ElMessage.error(res.data.message || '转换失败')
+      ElMessage.error(res.message || '转换失败')
     }
   } catch (err: any) {
     ElMessage.error(err.response?.data?.message || '请求失败')

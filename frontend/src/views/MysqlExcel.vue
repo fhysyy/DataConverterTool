@@ -130,7 +130,7 @@
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { UploadFile } from 'element-plus'
-import axios from 'axios'
+import { api } from '@/api'
 
 const activeTab = ref('mysql-to-excel')
 const previewLoading = ref(false)
@@ -154,11 +154,11 @@ const handleImportFileChange = (file: UploadFile) => { importFile.value = file.r
 const previewMysql = async () => {
   previewLoading.value = true
   try {
-    const res = await axios.post('/api/convert/mysql-preview', mysqlForm)
-    if (res.data.success) {
-      previewData.value = res.data.data
-      ElMessage.success(`查询到 ${res.data.data.totalRows} 条数据`)
-    } else { ElMessage.error(res.data.message) }
+    const res = await api.convert.mysqlPreview(mysqlForm)
+    if (res.success) {
+      previewData.value = res.data
+      ElMessage.success(`查询到 ${res.data.totalRows} 条数据`)
+    } else { ElMessage.error(res.message) }
   } catch (err: any) { ElMessage.error(err.response?.data || '连接失败') }
   finally { previewLoading.value = false }
 }
@@ -166,8 +166,8 @@ const previewMysql = async () => {
 const exportMysqlToExcel = async () => {
   exportLoading.value = true
   try {
-    const res = await axios.post('/api/convert/mysql-to-excel', mysqlForm, { responseType: 'blob' })
-    const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+    const res = await api.convert.mysqlToExcel(mysqlForm)
+    const blob = new Blob([res], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url; link.download = `${mysqlForm.fileName}.xlsx`; link.click()
@@ -190,9 +190,9 @@ const importExcelToMysql = async () => {
     formData.append('password', importForm.password)
     formData.append('tableName', importForm.tableName)
     formData.append('createIfNotExists', String(importForm.createIfNotExists))
-    const res = await axios.post('/api/convert/excel-to-mysql', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
-    if (res.data.success) { ElMessage.success(res.data.data) }
-    else { ElMessage.error(res.data.message) }
+    const res = await api.convert.excelToMysql(formData)
+    if (res.success) { ElMessage.success(res.data) }
+    else { ElMessage.error(res.message) }
   } catch (err: any) { ElMessage.error(err.response?.data || '导入失败') }
   finally { importLoading.value = false }
 }

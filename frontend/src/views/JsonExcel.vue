@@ -72,7 +72,7 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { UploadFile } from 'element-plus'
-import axios from 'axios'
+import { api } from '@/api'
 
 const activeTab = ref('json-to-excel')
 const loading = ref(false)
@@ -92,21 +92,21 @@ const jsonToExcel = async () => {
   if (!jsonInput.value.trim()) { ElMessage.warning('请输入 JSON 内容'); return }
   loading.value = true
   try {
-    const res = await axios.post('/api/convert/json-to-excel', {
+    const res = await api.convert.jsonToExcel({
       json: jsonInput.value,
       fileName: fileName.value
     })
-    if (res.data.success) {
-      const bytes = atob(res.data.data.content)
+    if (res.success) {
+      const bytes = atob(res.data.content)
       const arr = new Uint8Array(bytes.length)
       for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i)
       const blob = new Blob([arr], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
-      link.href = url; link.download = res.data.data.fileName; link.click()
+      link.href = url; link.download = res.data.fileName; link.click()
       URL.revokeObjectURL(url)
       ElMessage.success('导出成功')
-    } else { ElMessage.error(res.data.message) }
+    } else { ElMessage.error(res.message) }
   } catch (err: any) { ElMessage.error(err.response?.data || '请求失败') }
   finally { loading.value = false }
 }
@@ -117,11 +117,11 @@ const excelToJson = async () => {
   try {
     const formData = new FormData()
     formData.append('file', selectedFile.value)
-    const res = await axios.post('/api/convert/excel-to-json', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
-    if (res.data.success) {
-      jsonResult.value = res.data.data.content
+    const res = await api.convert.excelToJson(formData)
+    if (res.success) {
+      jsonResult.value = res.data.content
       ElMessage.success('转换成功')
-    } else { ElMessage.error(res.data.message) }
+    } else { ElMessage.error(res.message) }
   } catch (err: any) { ElMessage.error(err.response?.data || '请求失败') }
   finally { loading.value = false }
 }

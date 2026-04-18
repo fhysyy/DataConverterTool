@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import { api } from '@/api'
 
 const columns = ref<string[]>(['姓名', '年龄', '城市'])
 const rows = ref<Record<string, string>[]>([
@@ -114,12 +114,15 @@ const exportExcel = async () => {
 
   loading.value = true
   try {
-    const res = await axios.post('/api/convert/table-to-excel', {
-      headers: columns.value,
-      rows: rows.value,
-      fileName: fileName.value
-    }, {
-      responseType: 'blob'
+    const res = await api.convert.tableToExcel({
+      rows: rows.value.map(row => {
+        const newRow: any = {};
+        columns.value.forEach(col => {
+          newRow[col] = row[col];
+        });
+        return newRow;
+      }),
+      columns: columns.value.map(col => ({ key: col, title: col }))
     })
 
     const blob = new Blob([res.data], {

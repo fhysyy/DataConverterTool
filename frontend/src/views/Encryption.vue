@@ -110,7 +110,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import { api } from '@/api'
 
 const activeTab = ref('encrypt')
 const loading = ref(false)
@@ -136,7 +136,7 @@ const encrypt = async () => {
 
   loading.value = true
   try {
-    const { data } = await axios.post('http://tool.kenjtyang.site/data_api/api/Convert/encrypt', encryptForm)
+    const data = await api.encrypt.encrypt(encryptForm)
     if (data.success) {
       result.value = data.data
       ElMessage.success('加密成功')
@@ -158,7 +158,7 @@ const decrypt = async () => {
 
   loading.value = true
   try {
-    const { data } = await axios.post('http://tool.kenjtyang.site/data_api/api/Convert/decrypt', decryptForm)
+    const data = await api.encrypt.decrypt(decryptForm)
     if (data.success) {
       result.value = data.data
       ElMessage.success('解密成功')

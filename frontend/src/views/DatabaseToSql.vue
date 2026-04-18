@@ -95,7 +95,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import { api } from '@/api'
 
 const loading = ref(false)
 const tables = ref<string[]>([])
@@ -133,7 +133,7 @@ const handleDbTypeChange = () => {
 const loadTables = async () => {
   loading.value = true
   try {
-    const { data } = await axios.post('http://tool.kenjtyang.site/data_api/api/convert/database-sql-tables', form)
+    const data = await api.convert.databaseSqlTables(form)
     if (data.success) {
       tables.value = data.data
       ElMessage.success(`加载了 ${tables.value.length} 个表`)
@@ -158,7 +158,7 @@ const generateSql = async () => {
   }
   loading.value = true
   try {
-    const { data } = await axios.post('http://tool.kenjtyang.site/data_api/api/convert/database-to-sql', form)
+    const data = await api.convert.databaseToSql(form)
     if (data.success) {
       sqlResult.value = data.data
       ElMessage.success('生成建表语句成功')

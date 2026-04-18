@@ -90,7 +90,7 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { UploadFile } from 'element-plus'
-import axios from 'axios'
+import { api } from '@/api'
 
 const activeTab = ref('excel-to-csv')
 const loading = ref(false)
@@ -110,13 +110,17 @@ const excelToCsv = async () => {
     const formData = new FormData()
     formData.append('file', excelFile.value)
     formData.append('delimiter', csvDelimiter.value)
-    const res = await axios.post('/api/convert/excel-to-csv', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
-    if (res.data.success) {
-      textResult.value = res.data.data.content
-      resultFileName.value = res.data.data.fileName
+    const res = await api.convert.excelToCsv(formData)
+    if (res.success) {
+      textResult.value = res.data.content
+      resultFileName.value = res.data.fileName
       ElMessage.success('转换成功')
-    } else { ElMessage.error(res.data.message) }
-  } catch (err: any) { ElMessage.error(err.response?.data || '请求失败') }
+    } else {
+      ElMessage.error(res.message || '转换失败')
+    }
+  } catch (err: any) {
+    ElMessage.error(err.response?.data || '请求失败')
+  }
   finally { loading.value = false }
 }
 
@@ -127,19 +131,23 @@ const csvToExcel = async () => {
     const formData = new FormData()
     formData.append('file', csvFile.value)
     formData.append('delimiter', csvDelimiter.value)
-    const res = await axios.post('/api/convert/csv-to-excel', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
-    if (res.data.success) {
-      const bytes = atob(res.data.data.content)
+    const res = await api.convert.csvToExcel(formData)
+    if (res.success) {
+      const bytes = atob(res.data.content)
       const arr = new Uint8Array(bytes.length)
       for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i)
       const blob = new Blob([arr], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
-      link.href = url; link.download = res.data.data.fileName; link.click()
+      link.href = url; link.download = res.data.fileName; link.click()
       URL.revokeObjectURL(url)
-      ElMessage.success('转换成功，已开始下载')
-    } else { ElMessage.error(res.data.message) }
-  } catch (err: any) { ElMessage.error(err.response?.data || '请求失败') }
+      ElMessage.success('转换成功')
+    } else {
+      ElMessage.error(res.message || '转换失败')
+    }
+  } catch (err: any) {
+    ElMessage.error(err.response?.data || '请求失败')
+  }
   finally { loading.value = false }
 }
 

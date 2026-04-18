@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using DataConverter.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Register services for dependency injection
+builder.Services.AddScoped<IExcelService, ExcelService>();
+builder.Services.AddScoped<IJsonToClassService, JsonToClassService>();
+builder.Services.AddScoped<IExcelCsvService, ExcelCsvService>();
+builder.Services.AddScoped<IMysqlService, MysqlService>();
+builder.Services.AddScoped<IDataGeneratorService, DataGeneratorService>();
+builder.Services.AddScoped<IJsonToSqlService, JsonToSqlService>();
+builder.Services.AddScoped<IDatabaseService, DatabaseService>();
+builder.Services.AddScoped<IDatabaseToSqlService, DatabaseToSqlService>();
+builder.Services.AddScoped<IDatabaseToJsonService, DatabaseToJsonService>();
+builder.Services.AddScoped<IDataFormatService, DataFormatService>();
 
 // Configure CORS
 builder.Services.AddCors(options =>
