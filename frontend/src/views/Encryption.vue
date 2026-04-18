@@ -136,7 +136,7 @@ const encrypt = async () => {
 
   loading.value = true
   try {
-    const { data } = await axios.post('http://localhost:5077/api/Convert/encrypt', encryptForm)
+    const { data } = await axios.post('http://tool.kenjtyang.site/data_api/api/Convert/encrypt', encryptForm)
     if (data.success) {
       result.value = data.data
       ElMessage.success('加密成功')
@@ -158,7 +158,7 @@ const decrypt = async () => {
 
   loading.value = true
   try {
-    const { data } = await axios.post('http://localhost:5077/api/Convert/decrypt', decryptForm)
+    const { data } = await axios.post('http://tool.kenjtyang.site/data_api/api/Convert/decrypt', decryptForm)
     if (data.success) {
       result.value = data.data
       ElMessage.success('解密成功')

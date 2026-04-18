@@ -30,7 +30,6 @@
       </el-form>
 
       <el-upload
-        ref="uploadRef"
         drag
         :auto-upload="false"
         :limit="1"
@@ -79,7 +78,6 @@ import { ElMessage } from 'element-plus'
 import type { UploadFile } from 'element-plus'
 import axios from 'axios'
 
-const uploadRef = ref()
 const loading = ref(false)
 const result = ref<any>(null)
 const selectedFile = ref<File | null>(null)

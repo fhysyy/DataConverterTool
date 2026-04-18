@@ -26,7 +26,7 @@
           <thead>
             <tr>
               <th class="row-num">#</th>
-              <th v-for="(col, ci) in columns" :key="ci" class="header-cell">
+              <th v-for="(ci) in columns.length" :key="ci" class="header-cell">
                 <el-input
                   v-model="columns[ci]"
                   size="small"
@@ -39,7 +39,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, ri) in rows" :key="ri">
+            <tr v-for="(_row, ri) in rows" :key="ri">
               <td class="row-num">{{ ri + 1 }}</td>
               <td v-for="(col, ci) in columns" :key="ci">
                 <el-input

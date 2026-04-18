@@ -133,7 +133,7 @@ const handleDbTypeChange = () => {
 const loadTables = async () => {
   loading.value = true
   try {
-    const { data } = await axios.post('http://localhost:5077/api/convert/database-sql-tables', form)
+    const { data } = await axios.post('http://tool.kenjtyang.site/data_api/api/convert/database-sql-tables', form)
     if (data.success) {
       tables.value = data.data
       ElMessage.success(`加载了 ${tables.value.length} 个表`)
@@ -158,7 +158,7 @@ const generateSql = async () => {
   }
   loading.value = true
   try {
-    const { data } = await axios.post('http://localhost:5077/api/convert/database-to-sql', form)
+    const { data } = await axios.post('http://tool.kenjtyang.site/data_api/api/convert/database-to-sql', form)
     if (data.success) {
       sqlResult.value = data.data
       ElMessage.success('生成建表语句成功')

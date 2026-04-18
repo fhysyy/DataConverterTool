@@ -32,7 +32,7 @@
           <thead>
             <tr>
               <th class="row-num">#</th>
-              <th v-for="(col, ci) in columns" :key="ci" class="header-cell">
+              <th v-for="(ci) in columns.length" :key="ci" class="header-cell">
                 <el-input
                   v-model="columns[ci]"
                   size="small"
@@ -45,17 +45,17 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, ri) in rows" :key="ri">
-              <td class="row-num">{{ ri + 1 }}</td>
-              <td v-for="(col, ci) in columns" :key="ci">
+            <tr v-for="(ri) in rows.length" :key="ri">
+              <td class="row-num">{{ ri }}</td>
+              <td v-for="(ci) in columns.length" :key="ci">
                 <el-input
-                  v-model="rows[ri][col]"
+                  v-model="rows[ri - 1][columns[ci - 1]]"
                   size="small"
                   placeholder="值"
                 />
               </td>
               <td class="action-col">
-                <el-icon class="remove-icon" @click="removeRow(ri)"><Delete /></el-icon>
+                <el-icon class="remove-icon" @click="removeRow(ri - 1)"><Delete /></el-icon>
               </td>
             </tr>
           </tbody>
