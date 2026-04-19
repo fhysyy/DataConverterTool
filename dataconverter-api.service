@@ -1,0 +1,16 @@
+[Unit]
+Description=DataConverter API Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/data/api
+ExecStart=/usr/bin/dotnet /data/api/DataConverter.API.dll
+Restart=on-failure
+RestartSec=10
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+
+[Install]
+WantedBy=multi-user.target
